@@ -1,0 +1,27 @@
+.data 
+string : .asciiz "O numero lido foi : "
+numero_lido : .word 0
+_add : .asciiz "ADD: "
+_sub : .asciiz "SUB: "
+_and : .asciiz "AND: "
+_or : .asciiz "OR: "
+_xor : .asciiz "XOR: "
+_mask : .asciiz "MASK: "
+
+.text
+main:
+	li $v0, 5 		# carrega o codigo de leitura de int
+	syscall 		# le o numero
+	move $t0, $v0		# salva o primeiro nunero no registrador t0
+	
+	#sw $v0, numero_lido 	# salva o numero na label numero_lido
+	li $v0, 4		# print string code
+	move $v0, $t0
+	#la $a0, string 		# carrega a string no registrador
+	syscall 		# print string
+	#li $v0, 1		# print int code
+	#lw $a0, numero_lido	# carrega o numero no registrador
+	#syscall 
+
+	li $v0, 10 		# carrega o codigo de return 0 no registrador
+	syscall 		# chama o sistema para sair

@@ -1,27 +1,70 @@
 .data 
-string : .asciiz "O numero lido foi : "
-numero_lido : .word 0
+#string : .asciiz "O numero lido foi : "
+#numero_lido : .word 0
 _add : .asciiz "ADD: "
 _sub : .asciiz "SUB: "
 _and : .asciiz "AND: "
 _or : .asciiz "OR: "
 _xor : .asciiz "XOR: "
 _mask : .asciiz "MASK: "
+barra_n : .byte 10		# codigo ascii para \n
 
 .text
 main:
+		
+	#sw $v0, numero_lido 	# salva o numero na label numero_lido
+	#li $v0, 1		# print string code
+	#move $a0, $t0
+	#la $a0, string 		# carrega a string no registrador
+	#syscall 		# print string
+	#li $v0, 1		# print int code
+	#lw $a0, numero_lido	# carrega o numero no registrador
+	#syscall 
+	
+	#-------------------------------------------------------#
+	
 	li $v0, 5 		# carrega o codigo de leitura de int
 	syscall 		# le o numero
 	move $t0, $v0		# salva o primeiro nunero no registrador t0
 	
-	#sw $v0, numero_lido 	# salva o numero na label numero_lido
-	li $v0, 4		# print string code
-	move $v0, $t0
-	#la $a0, string 		# carrega a string no registrador
-	syscall 		# print string
+	li $v0, 5		# read int code
+	syscall 		# le o int
+	move $t1, $v0		# salva o numero lido em t1
+	
 	#li $v0, 1		# print int code
-	#lw $a0, numero_lido	# carrega o numero no registrador
-	#syscall 
+	#move $a0, $t1		# move o valor do segundo numero para a saida $a0
+	#syscall 		# imprime o numero na tela
+	
+	li $v0, 5		# read int code
+	syscall 		# le o int
+	move $t2, $v0		# salva o numero lido em t2
+	
+	#li $v0, 1		# print int code
+	#move $a0, $t2		# move o valor do terceiro numero para a saida $a0
+	#syscall 		# imprime o numero na tela
+
+	# 3 numeros já foram lidos e estao em t0, t1, t2
+	
+	#imprimir na tela : ADD: 
+	li $v0, 4		# print string code
+	la $a0, _add		# carrega a string em a0
+	syscall 		# imprime a string de adicao 
+	
+	#fazer o add entre o primeiro e o segundo numero e mostrar na tela
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	add $t3, $t0, $t1	# t3 = t0 + t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a soma
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+
+
+#------END-----------------------------------------------------------------------------------------------------#
 
 	li $v0, 10 		# carrega o codigo de return 0 no registrador
 	syscall 		# chama o sistema para sair

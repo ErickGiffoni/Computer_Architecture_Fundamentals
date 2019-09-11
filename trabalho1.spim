@@ -9,6 +9,9 @@ _xor : .asciiz "XOR: "
 _mask : .asciiz "MASK: "
 barra_n : .byte 10		# codigo ascii para \n
 parametro_mask : .word 31 # 31 na base 10
+_sll : .asciiz "SLL("
+_srl : .asciiz "SRL("
+_fecha : .asciiz "): "
 
 .text
 main:
@@ -132,6 +135,56 @@ main:
 	li $v0, 1		# print int code
 	move $a0, $t3		# coloca o resultado a ser impresso em $a0
 	syscall			# imprime a mask
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	# imprimir na tela: SLL( 
+	li $v0, 4		# print string code
+	la $a0, _sll		# carrega a stringf em a0
+	syscall			# imprime na tela
+	
+	# colocar o parametro da SLL na tela
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a mask
+
+	# fechar os parentesis
+	li $v0, 4		# print string code
+	la $a0, _fecha		# carrega a string em a0
+	syscall			# imprime na tela
+	
+	# fazer a operacao do SLL
+	sllv $a0, $t0, $t3	# shift left t0 em t3 bits
+	li $v0, 1		# print int code
+	syscall
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+
+	# imprimir na tela: SRL( 
+	li $v0, 4		# print string code
+	la $a0, _srl		# carrega a stringf em a0
+	syscall			# imprime na tela
+	
+	# colocar o parametro da SRL na tela
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a mask
+
+	# fechar os parentesis
+	li $v0, 4		# print string code
+	la $a0, _fecha		# carrega a string em a0
+	syscall			# imprime na tela
+
+	# fazer a operacao SRL
+	srlv $a0, $t1, $t3	# shit right t1 em t3 bits
+	li $v0, 1		# print int code
+	syscall
 	
 	#colocar a quebra de linha no buffer
 	li $v0, 4		# print string code

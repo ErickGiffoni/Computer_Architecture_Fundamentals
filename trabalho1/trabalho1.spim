@@ -1,0 +1,198 @@
+.data 
+#string : .asciiz "O numero lido foi : "
+#numero_lido : .word 0
+_add : .asciiz "ADD: "
+_sub : .asciiz "SUB: "
+_and : .asciiz "AND: "
+_or : .asciiz "OR: "
+_xor : .asciiz "XOR: "
+_mask : .asciiz "MASK: "
+barra_n : .byte 10		# codigo ascii para \n
+parametro_mask : .word 31 # 31 na base 10
+_sll : .asciiz "SLL("
+_srl : .asciiz "SRL("
+_fecha : .asciiz "): "
+
+.text
+main:
+	
+	li $v0, 5 		# carrega o codigo de leitura de int
+	syscall 		# le o numero
+	move $t0, $v0		# salva o primeiro nunero no registrador t0
+	
+	li $v0, 5		# read int code
+	syscall 		# le o int
+	move $t1, $v0		# salva o numero lido em t1
+	
+	li $v0, 5		# read int code
+	syscall 		# le o int
+	move $t2, $v0		# salva o numero lido em t2
+	
+	# 3 numeros já foram lidos e estao em t0, t1, t2
+	
+	#imprimir na tela : ADD: 
+	li $v0, 4		# print string code
+	la $a0, _add		# carrega a string em a0
+	syscall 		# imprime a string de adicao 
+	
+	#fazer o add entre o primeiro e o segundo numero e mostrar na tela
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	add $t3, $t0, $t1	# t3 = t0 + t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a soma
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+
+	#imprimir na tela : SUB: 
+	li $v0, 4		# print string code
+	la $a0, _sub		# carrega a string em a0
+	syscall 		# imprime a string de sub 
+
+
+	#subtrair o primeiro numero do segundo
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	sub $t3, $t0, $t1	# t3 = t0 - t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a sub
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	#imprimir na tela : AND: 
+	li $v0, 4		# print string code
+	la $a0, _and		# carrega a string em a0
+	syscall 		# imprime a string de and 
+
+	#fazer a AND do primeiro com o segundo numero e colocar em $t3
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	and $t3, $t0, $t1	# t3 = t0 and t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a and
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	#imprimir na tela : OR: 
+	li $v0, 4		# print string code
+	la $a0, _or		# carrega a string em a0
+	syscall 		# imprime a string de or
+	
+	# fazer a OR entre o primeiro e o segundo numero
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	or $t3, $t0, $t1	# t3 = t0 OR t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a or
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	#imprimir na tela : XOR: 
+	li $v0, 4		# print string code
+	la $a0, _xor		# carrega a string em a0
+	syscall 		# imprime a string de xor
+	
+	# fazer a XOR entre o primeiro e o segundo numero
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	xor $t3, $t0, $t1	# t3 = t0 XOR t1
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a or
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	# imprimir na tela: MASK: 
+	li $v0, 4		# print string code
+	la $a0, _mask		# carrega a string em a0
+	syscall 		# imprime a string de mask
+	
+	# fazer a MASK entre o terceiro numero e ???
+	#zerar $t3
+	sub $t3, $t3, $t3	# zerando o registrador
+	# carregar o parametro_mask no registrador
+	lw $t4, parametro_mask	# t4 = 0x0000001F
+	and $t3, $t2, $t4	# t3 = $t2 AND 0x0000001F
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a mask
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+	
+	# imprimir na tela: SLL( 
+	li $v0, 4		# print string code
+	la $a0, _sll		# carrega a stringf em a0
+	syscall			# imprime na tela
+	
+	# colocar o parametro da SLL na tela
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a mask
+
+	# fechar os parentesis
+	li $v0, 4		# print string code
+	la $a0, _fecha		# carrega a string em a0
+	syscall			# imprime na tela
+	
+	# fazer a operacao do SLL
+	sllv $a0, $t0, $t3	# shift left t0 em t3 bits
+	li $v0, 1		# print int code
+	syscall
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+
+	# imprimir na tela: SRL( 
+	li $v0, 4		# print string code
+	la $a0, _srl		# carrega a stringf em a0
+	syscall			# imprime na tela
+	
+	# colocar o parametro da SRL na tela
+	li $v0, 1		# print int code
+	move $a0, $t3		# coloca o resultado a ser impresso em $a0
+	syscall			# imprime a mask
+
+	# fechar os parentesis
+	li $v0, 4		# print string code
+	la $a0, _fecha		# carrega a string em a0
+	syscall			# imprime na tela
+
+	# fazer a operacao SRL
+	srlv $a0, $t1, $t3	# shit right t1 em t3 bits
+	li $v0, 1		# print int code
+	syscall
+	
+	#colocar a quebra de linha no buffer
+	li $v0, 4		# print string code
+	la $a0, barra_n		# poe o \n em a0
+	syscall
+
+
+#------END-----------------------------------------------------------------------------------------------------#
+
+	li $v0, 10 		# carrega o codigo de return 0 no registrador
+	syscall 		# chama o sistema para sair

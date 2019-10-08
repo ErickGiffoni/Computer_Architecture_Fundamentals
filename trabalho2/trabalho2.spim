@@ -46,12 +46,12 @@ syscall			# chama a syscall para return 0
 
 is_lower_than_parameter:
 slt $t3, $a0, $t9	# a0 < 65535 ? t3 = 1, else t3 = 0
-beq $t3, $zero, error	# se t3 = 0 , erro. 
-# verificar se o num <= 0  
+beq $t3, $zero, error	# se t3 = 0 , erro.
+# verificar se o num <= 0
 beq $a0, $zero, error	# se numero = 0, erro
 slti $t3, $a0, 0	# se numero < 0, t3 =1, else t3 = 0
 bne $t3, $zero, error	# se t3 != 0, erro
- 
+
 jr $ra
 
 error:
@@ -62,7 +62,7 @@ syscall			# print mensagem de erro
 j end			# termina o programa
 
 is_prime:
-# verificar se o num <= 3 
+# verificar se o num <= 3
 slti $t3, $a0, 4	# se numero < 4, t3 =1, else t3 = 0
 bne $t3, $zero, verifica_mod_2_3	# se t3 != 0, num >= 4, pula pro outro if
 beq $a0, $t7, not_prime	# se num = 1 , nao e primo
@@ -74,7 +74,7 @@ addi $t7, $t7, 1	# t7 = 3
 beq $a0, $t7, sai_do_while	# se num = 3 , e primo
 
 verifica_mod_2_3:
-div $a0, $t6		# num / 2 -> HI = resto 
+div $a0, $t6		# num / 2 -> HI = resto
 mfhi $t5		# t5 = resto (HI)
 beq $t5, $zero, not_prime	# se o resto da div for 0, nao e primo
 div $a0, $t8		# num / 3 -> HI = resto
@@ -107,4 +107,8 @@ j end			# encerra o programa
 
 modular_exponentiation:
 
+<<<<<<< HEAD
 jr $ra
+=======
+jr $ra
+>>>>>>> 5f2a1f0af477c6717e168a4507fc571c84e73684

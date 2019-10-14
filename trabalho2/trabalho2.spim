@@ -1,14 +1,16 @@
 .data
 mensagem_de_erro: .asciiz "Entradas invalidas.\n"
 nao_primo: .asciiz "O modulo nao eh primo.\n"
+numero: .word 65536
 
 .text
 
-main:
-
-addi $t9, $zero, 32767	# t9 e o 32767
-addi $t9, $t9, 32767	# t9 = 32767 + 32767 = 65534
-addi $t9, $t9, 1	# t9 = 65534 + 1 = 65535
+.main:
+lw $t9, numero
+#addi $t9, $zero, 32767	# t9 e o 32767
+#addi $t9, $t9, 32767	# t9 = 32767 + 32767 = 65534
+#addi $t9, $t9, 1	# t9 = 65534 + 1 = 65535
+#addiu $t9, $zero, 65535
 addi $t8, $zero, 3	# t8 = 3
 addi $t7, $zero, 1	# t7 = 1
 addi $t6, $zero, 2	# t6 = 2
@@ -19,22 +21,29 @@ syscall 		# le o int
 move $t0, $v0		# salva o numero em t0
 move $a0, $t0		# copia o numero pra a0, vamos passar a0 para a funcao is_lower_than_parameter
 jal is_lower_than_parameter 	# chama a funcao para verificar se o numero atende aos parametros do enunciado
+#fzr um beq
+beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 li $v0, 5		# cod le inteiro
 syscall 		# le o int
 move $t1, $v0		# salva o numero 2 em t1
 move $a0, $t1		# copia o numero pra a0, vamos passar a0 para a funcao is_lower_than_parameter
 jal is_lower_than_parameter	# chama a funcao para verificar se o numero atende aos parametros do enunciado
+#fzr um beq
+beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 li $v0, 5		# cod le inteiro
 syscall 		# le o int
 move $t2, $v0		# salva o numero 3 em t2
 move $a0, $t2		# copia o numero pra a0, vamos passar a0 para a funcao is_lower_than_parameter
 jal is_lower_than_parameter	# chama a funcao para verificar se o numero atende aos parametros do enunciado
+#fzr um beq
+beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 # verificar se o t2 e primo
 move $a0, $t2		# copia o numero pra a0, vamos passar a0 para a funcao is_prime
 jal is_prime
+beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 # exponenciar tudo
 
@@ -44,6 +53,8 @@ end:
 li $v0, 10 		# codigo de saida de programa
 syscall			# chama a syscall para return 0
 
+#---------------------------FUNCOES----------------------------------------------------------------------------#
+
 is_lower_than_parameter:
 slt $t3, $a0, $t9	# a0 < 65535 ? t3 = 1, else t3 = 0
 beq $t3, $zero, error	# se t3 = 0 , erro.
@@ -51,15 +62,18 @@ beq $t3, $zero, error	# se t3 = 0 , erro.
 beq $a0, $zero, error	# se numero = 0, erro
 slti $t3, $a0, 0	# se numero < 0, t3 =1, else t3 = 0
 bne $t3, $zero, error	# se t3 != 0, erro
+sub $v1, $v1, $v1	# v1 = 0, endereco de retorno de funcao
+addi $v1, $v1, 1	# v1 = 1, retorno verdadeiro
 
 jr $ra
 
 error:
 # print da mensagem de erro
 li $v0, 4		# cod print string
-lw $a0, mensagem_de_erro # carrega a mensagem no a0
+la $a0, mensagem_de_erro # carrega a mensagem no a0
 syscall			# print mensagem de erro
-j end			# termina o programa
+sub $v1, $v1, $v1	# v1 = 0, endereco de retorno de funcao, 0 = erro
+jr $ra			# volta para onde parou
 
 is_prime:
 # verificar se o num <= 3
@@ -96,19 +110,21 @@ addi $t4, $t4, 4	# t4 = t4 + 4
 j while
 
 sai_do_while:
+sub $v1, $v1, $v1	# v1 = 0, endereco de retorno de funcao
+addi $v1, $v1, 1	# v1 = 1, retorno verdadeiro
+
 jr $ra
 
 not_prime:
 # print da mensagem de erro
 li $v0, 4		# cod print string
-lw $a0, nao_primo	# carrega a mensagem no a0
+la $a0, nao_primo	# carrega a mensagem no a0
 syscall			# print mensagem de erro
-j end			# encerra o programa
+sub $v1, $v1, $v1	# v1 = 0, endereco de retorno de funcao, 0 = erro
+jr $ra			# volta para onde parou
+
 
 modular_exponentiation:
 
-<<<<<<< HEAD
+
 jr $ra
-=======
-jr $ra
->>>>>>> 5f2a1f0af477c6717e168a4507fc571c84e73684

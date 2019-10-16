@@ -5,7 +5,7 @@ numero: .word 65536
 
 .text
 
-.main:
+main:
 lw $t9, numero
 #addi $t9, $zero, 32767	# t9 e o 32767
 #addi $t9, $t9, 32767	# t9 = 32767 + 32767 = 65534
@@ -46,7 +46,23 @@ jal is_prime
 beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 # exponenciar tudo
+	# t0 * t0 % t2 ; resultado * t0 % t2 ===>>> t1 vezes
+	# precisaremos de um contador
+move $t5, $t0
+sub $t3, $t3, $t3		# contador t3 = 0
+exponenciar:
+multu $t5, $t0			# t0 ^2 ==>> base ^2 , na primeira vez ; nas outras : resultado * base
+mflo $t4			# resultado anterior em t4
+divu $t4, $t2			# t4 / t2 ==>> base^2 / modulo
+mfhi $t5			# t5 = t4 % t2 ===>>> t5 = base^2 mod modulo
+addi $t3, $t3, 1		# t3 + 1 ==>> contador ++
+slt $t6, $t3, $t1		# t3 < t1 ? ==>> contador < expoente ? se sim, repete ; se nao, exponenciacao concluida
+beq $t6, 1, exponenciar		# contador < expoente ? se sim, repete ; se nao, exponenciacao concluida
 
+# resultado em t5
+move $a0, $t5			# resultado agora em a0
+li $v0, 1			# print int code
+syscall 			# print do resultado
 
 end:
 #------END-----------------------------------------------------------------------------------------------------#
@@ -97,9 +113,9 @@ beq $t5, $zero, not_prime 	# se o resto da div for 0, nao e primo
 
 addi $t5, $a0, 1	# t5 = num + 1
 while:
-slt $t3, $t4, $t5	# t4 < num + 1 ? t3 = 1, else t3 = 0
+slt $t3, $t4, $t5	# t4 < num + 1 ? t3 = 1, else t3 = 0 ; t4 = 25, inicialmente
 beq $t3, $zero, sai_do_while	# se t4 > num + 1 sai do while
-div $a0, $t4		# num / t4
+div $a0, $t4		# num / t4 
 mfhi $t5		# t5 = resto de num / t4
 beq $t5, $zero, not_prime	# se o resto da div for 0, nao e primo
 addi $t4, $t4, 2	# t4 + 2
@@ -107,6 +123,10 @@ div $a0, $t4		# num / t4+2
 mfhi $t5		# t5 = resto de num / t4+2
 beq $t5, $zero, not_prime	# se o resto da div for 0, nao e primo
 addi $t4, $t4, 4	# t4 = t4 + 4
+addi $t5, $a0, 1	# t5 = num + 1
+# fazer t4 * t4 => i * i
+multu $t4, $t4		# t4 ^ 2
+mflo $t4		# t4 = low t4^2
 j while
 
 sai_do_while:

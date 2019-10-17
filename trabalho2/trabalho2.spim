@@ -6,7 +6,7 @@ exp_mod: .asciiz "A exponencial modular "
 elevado: .asciiz " elevado a "
 mod: .asciiz " (mod "
 fecha_mod: .asciiz ") eh "
-barra_n: .asciiz "\n"
+barra_n: .asciiz ".\n"
 
 .text
 
@@ -120,7 +120,7 @@ syscall			# chama a syscall para return 0
 #---------------------------FUNCOES----------------------------------------------------------------------------#
 
 is_lower_than_parameter:
-slt $t3, $a0, $t9	# a0 < 65535 ? t3 = 1, else t3 = 0
+slt $t3, $a0, $t9	# a0 < 65536 ? t3 = 1, else t3 = 0
 beq $t3, $zero, error	# se t3 = 0 , erro.
 # verificar se o num <= 0
 beq $a0, $zero, error	# se numero = 0, erro
@@ -142,20 +142,20 @@ jr $ra			# volta para onde parou
 is_prime:
 # verificar se o num <= 3
 slti $t3, $a0, 4	# se numero < 4, t3 =1, else t3 = 0
-bne $t3, $zero, verifica_mod_2_3	# se t3 != 0, num >= 4, pula pro outro if
-beq $a0, $t7, not_prime	# se num = 1 , nao e primo
+beq $t3, $zero, verifica_mod_2_3	# se t3 = 0, num >= 4, pula pro outro if
+beq $a0, 1, not_prime	# se num = 1 , nao e primo
 # ver se num = 2
-addi $t7, $t7, 1	# t7 = 2
+addi $t7, $zero, 2	# t7 = 2
 beq $a0, $t7, sai_do_while	# se num for 2, e primo
 # ver se num = 3
 addi $t7, $t7, 1	# t7 = 3
 beq $a0, $t7, sai_do_while	# se num = 3 , e primo
 
 verifica_mod_2_3:
-div $a0, $t6		# num / 2 -> HI = resto
+divu $a0, $t6		# num / 2 -> HI = resto
 mfhi $t5		# t5 = resto (HI)
 beq $t5, $zero, not_prime	# se o resto da div for 0, nao e primo
-div $a0, $t8		# num / 3 -> HI = resto
+divu $a0, $t8		# num / 3 -> HI = resto
 mfhi $t5		# t5 = resto de num/3
 beq $t5, $zero, not_prime 	# se o resto da div for 0, nao e primo
 
@@ -190,9 +190,3 @@ la $a0, nao_primo	# carrega a mensagem no a0
 syscall			# print mensagem de erro
 sub $v1, $v1, $v1	# v1 = 0, endereco de retorno de funcao, 0 = erro
 jr $ra			# volta para onde parou
-
-
-modular_exponentiation:
-
-
-jr $ra

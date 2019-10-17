@@ -2,6 +2,11 @@
 mensagem_de_erro: .asciiz "Entradas invalidas.\n"
 nao_primo: .asciiz "O modulo nao eh primo.\n"
 numero: .word 65536
+exp_mod: .asciiz "A exponencial modular "
+elevado: .asciiz " elevado a "
+mod: .asciiz " (mod "
+fecha_mod: .asciiz ") eh "
+barra_n: .asciiz "\n"
 
 .text
 
@@ -46,23 +51,66 @@ jal is_prime
 beq $v1, $zero, end	# se v1 = 0, retorno da funcao indica erro. Assim, termina-se o programa
 
 # exponenciar tudo
-	# t0 * t0 % t2 ; resultado * t0 % t2 ===>>> t1 vezes
-	# precisaremos de um contador
-move $t5, $t0
-sub $t3, $t3, $t3		# contador t3 = 0
-exponenciar:
-multu $t5, $t0			# t0 ^2 ==>> base ^2 , na primeira vez ; nas outras : resultado * base
-mflo $t4			# resultado anterior em t4
-divu $t4, $t2			# t4 / t2 ==>> base^2 / modulo
-mfhi $t5			# t5 = t4 % t2 ===>>> t5 = base^2 mod modulo
-addi $t3, $t3, 1		# t3 + 1 ==>> contador ++
-slt $t6, $t3, $t1		# t3 < t1 ? ==>> contador < expoente ? se sim, repete ; se nao, exponenciacao concluida
-beq $t6, 1, exponenciar		# contador < expoente ? se sim, repete ; se nao, exponenciacao concluida
 
-# resultado em t5
-move $a0, $t5			# resultado agora em a0
+move $t8, $t1			# copia t1 pra t8
+
+divu $t0, $t2 
+mfhi $t5
+sub $t4, $t4, $t4
+addi $t4, $t4, 1
+for:
+beq $t8, $zero, sai_do_for
+andi $t7, $t1, 1
+bne $t7, 1, pula
+multu $t4, $t5
+mflo $t4
+divu $t4, $t2
+mfhi $t4
+pula:
+multu $t5, $t5
+mflo $t5
+divu $t5, $t2
+mfhi $t5
+srl $t8, $t8, 1
+j for
+sai_do_for:
+
+li $v0, 4
+la $a0, exp_mod
+syscall
+
+move $a0, $t0
+li $v0, 1
+syscall
+
+li $v0, 4
+la $a0, elevado
+syscall
+
+li $v0, 1
+move $a0, $t1
+syscall
+
+li $v0, 4
+la $a0, mod
+syscall
+
+li $v0, 1
+move $a0, $t2
+syscall 
+
+li $v0, 4
+la $a0, fecha_mod
+syscall
+
+# resultado em t4
+move $a0, $t4			# resultado agora em a0
 li $v0, 1			# print int code
 syscall 			# print do resultado
+
+li $v0, 4
+la $a0, barra_n
+syscall
 
 end:
 #------END-----------------------------------------------------------------------------------------------------#

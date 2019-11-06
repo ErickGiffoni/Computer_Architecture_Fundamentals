@@ -54,11 +54,11 @@ double my_sqrt(int *x, int *e, int *iterations){
 while(*iterations < 100){
   if(error < 0) error *= (-1); //set error to a positive value
   if (error < prox_error) return bn;
-  printf("iteration %d\n\n\terror = %.7lf\n\n\tprox_error = %.7lf\n\n", *iterations, error, prox_error);
+  //printf("iteration %d\n\n\terror = %.7lf\n\n\tprox_error = %.7lf\n\n", *iterations, error, prox_error);
   an = (an + bn) / 2.0;
   bn = *x / an;
   error = bn - an;
-  printf("actual error = %.7lf\n", error);
+  //printf("actual error = %.7lf\n", error);
   *iterations += 1;
 }
 

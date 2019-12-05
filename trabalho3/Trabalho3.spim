@@ -2,7 +2,7 @@
 
 entradas_invalidas_string: .asciiz "Entradas invalidas.\n"
 nao_foi_poss: .asciiz "Nao foi possivel calcular sqrt("
-fecha: .asciiz ").\n"
+fecha: .asciiz ")\n"
 dez: .double 10.0
 um: .double 1.0
 zero: .double 0.0
@@ -140,7 +140,7 @@ div.d $f4, $f6, $f4		# prox_error = 1.0/prox_error
 mtc1 $t0, $f10			# f10 recebe o 'x'
 cvt.d.w $f10, $f10		# converte pra double
 div.d $f12, $f10, $f2		# bn = x / 10.0
-addi $t2, $zero, 1		# contador = 1
+addi $t2, $zero, 0		# contador = 0
 sub.d $f8, $f12, $f2		# error = bn - an
 
 l.d $f14, zero			# f14 = 0.0

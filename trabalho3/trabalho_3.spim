@@ -1,0 +1,178 @@
+.data
+
+entradas_invalidas_string: .asciiz "Entradas invalidas.\n"
+nao_foi_poss: .asciiz "Nao foi possivel calcular sqrt("
+fecha: .asciiz ").\n"
+dez: .double 10.0
+um: .double 1.0
+zero: .double 0.0
+menos_um: .double -1.0
+dois: .double 2.0
+a_raiz_de: .asciiz "A raiz quadrada de "
+eh: .asciiz " eh "
+calculada_em: .asciiz ", calculada em "
+iteracoes: .asciiz " iteracoes.\n"
+
+.text
+
+main:
+
+# ler o "x" e o "e"
+li $v0, 5			# cod le int
+syscall				# le o int 'x'
+move $t0, $v0			# salva o 'x' em t0
+
+li $v0, 5			# cod le int
+syscall				# le o int 'e'
+move $t1, $v0			# salva o 'e' em t0
+
+# verificar a validade das entradas
+jal verifica_inputs
+beq $v0, 0, error
+beq $v1, 0, end
+
+#calcular resultado
+jal my_sqrt
+addi $v0, $v0, 1		# v0 = 1
+beq $v1, 1, error		# se o retorno de my_sqrt for 1, erro de iteracoes
+beq $v1, 0, end			# se o retorno do erro for 0, termina o programa
+
+# deu tudo certo : printar o resultado
+li $v0, 4			# print string
+la $a0, a_raiz_de		# a raiz quadrada de 
+syscall
+
+li $v0, 1			# print int
+move $a0, $t0			# poe o 'x' em a0
+syscall
+
+li $v0, 4			# print string
+la $a0, eh			# eh
+syscall
+
+li $v0, 3			# print double
+syscall				# print f12
+
+li $v0, 4			# print string
+la $a0, calculada_em		# , calculada em 
+syscall
+
+li $v0, 1 			# print int
+move $a0, $t2			# poe o contador em a0
+syscall
+
+li $v0, 4			# print string
+la $a0, iteracoes		# iteracoes.\n
+syscall
+
+
+end:
+
+#------END-----------------------------------------------------------------------------------------------------#
+li $v0, 10 			# codigo de saida de programa
+syscall				# chama a syscall para return 0
+
+
+
+
+#---------------------------FUNCOES----------------------------------------------------------------------------#
+verifica_inputs:
+slti $t3, $t0, 2		# verifica se x < 2
+beq $t3, 1, parametro_invalido
+slti $t3, $t1, 1		# verifica se e <= 0
+beq $t3, 1, parametro_invalido
+addi $v0, $zero, 1		# return true
+addi $v1, $zero, 10		# v1 = 10 - arbitrario... pra nao dar erro quando jr $ra
+
+jr $ra
+
+parametro_invalido:
+move $v0, $zero			# return falso 
+
+jr $ra
+
+error:
+beq $v0, $zero, entradas_invalidas
+
+li $v0, 4			# cod print string
+la $a0, nao_foi_poss		# string de erro de iteracoes
+syscall
+
+li $v0, 1			# print int
+move $a0, $t0			# poe o 'x' em a0
+syscall
+
+li $v0, 4			# print string
+la $a0, fecha			# restante da string
+syscall
+
+addi $v1, $zero, 0		# return falso
+jr $ra
+
+entradas_invalidas:
+li $v0, 4			# cod print string
+la $a0, entradas_invalidas_string 	# carrega a mensagem no a0
+syscall				# print mensagem de erro
+
+move $v1, $zero			# return falso
+jr $ra
+
+my_sqrt:
+l.d $f2, dez			# f2 = 10.0
+addi $t2, $zero, 2		# contador = 2
+addi $t3, $t1, 1		# t3 = 'e' + 1
+slt $t4, $t2, $t3		# contador < t3 ? sim, t4=1 ; nao, t4=0
+l.d $f4, dez			# f4 = prox_error
+beq $t4, 0, pula		# se t4 = 0, pula o for
+
+for:
+mul.d $f4, $f4, $f2		# prox_error = prox_error * 10
+addi $t2, $t2, 1		# contador ++
+slt $t4, $t2, $t3		# contador < t3 ('e' + 1) ?
+beq $t4, 1, for			# se t4 = 1 , vai iterar de novo
+
+pula:
+l.d $f6, um			# f6 = 1.0
+div.d $f4, $f6, $f4		# prox_error = 1.0/prox_error
+
+# agora a partir da linha 49 do alto nível
+# a partir daqui, $f2 = an
+mtc1 $t0, $f10			# f10 recebe o 'x'
+cvt.d.w $f10, $f10		# converte pra double
+div.d $f12, $f10, $f2		# bn = x / 10.0
+addi $t2, $zero, 1		# contador = 1
+sub.d $f8, $f12, $f2		# error = bn - an
+
+l.d $f14, zero			# f14 = 0.0
+l.d $f16, menos_um		# f16 = -1.0
+l.d $f18, dois			# f18 = 2.0
+
+while:
+slti $t4, $t2, 100		# contador < 100 ?
+beq $t4, 0, pula_while		# caso nao, pula o while
+
+c.lt.d $f8, $f14		# error < 0 ?
+bc1f pula_erro_negativo		# erro nao esta negativo
+mul.d $f8, $f8, $f16		# error = error * -1
+
+pula_erro_negativo:
+c.lt.d $f8, $f4			# error < prox_error ?
+bc1t return_bn			# se sim, retorna bn
+
+add.d $f2, $f2, $f12		# an = an + bn
+div.d $f2, $f2, $f18		# an = an / 2.0
+div.d $f12, $f10, $f2		# bn = 'x' / an
+sub.d $f8, $f12, $f2		# error = bn - an
+
+addi $t2, $t2, 1		# contador += 1
+j while
+
+return_bn:
+addi $v1, $zero, 2		# v1 = 2
+jr $ra				# return bn
+
+pula_while:
+# retornar com $v1 = 2 se der certo, ou $v1 = 1 se der errado
+addi $v1, $zero, 1		# v1 = 1 -> erro
+
+jr $ra
